@@ -103,8 +103,18 @@
 </head>
 <body class="min-h-screen w-full flex items-center justify-center p-4">
 
+    <!-- Pantalla Inicial -->
+    <div id="pantalla-inicial" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-pink-50/95 backdrop-blur-md transition-opacity duration-700">
+        <h1 class="mensaje-texto text-4xl sm:text-5xl text-pink-600 font-bold mb-8 text-center px-4 leading-tight">
+            Hola ma,<br>tengo algo para vos...
+        </h1>
+        <button id="btn-empezar" class="bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold py-4 px-10 rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 text-xl animate-bounce">
+            Abrir sorpresa ✨
+        </button>
+    </div>
+    
     <!-- Contenedor Principal de la Tarjeta -->
-    <div id="card-container" class="bg-white/80 backdrop-blur-md rounded-3xl p-6 sm:p-10 max-w-lg w-full mx-auto shadow-2xl border border-white/50 text-center fade-transition fade-in relative mt-4 mb-4">
+    <div id="card-container" class="bg-white/80 backdrop-blur-md rounded-3xl p-6 sm:p-10 max-w-lg w-full mx-auto shadow-2xl border border-white/50 text-center fade-transition fade-in relative mt-4 mb-4" style="display: none;">
         
         <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 opacity-70"></div>
 
@@ -285,6 +295,19 @@
             modalContent.classList.add('scale-95');
         });
 
+        // Lógica de la pantalla inicial
+        const pantallaInicial = document.getElementById('pantalla-inicial');
+        const btnEmpezar = document.getElementById('btn-empezar');
+
+        btnEmpezar.addEventListener('click', () => {
+            pantallaInicial.style.opacity = '0';
+            
+            setTimeout(() => {
+                pantallaInicial.style.display = 'none';
+                cardContainer.style.display = 'block';
+            }, 700);
+        });
+        
         // Inicio
         window.onload = () => {
             renderSlide();
