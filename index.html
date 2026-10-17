@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Feliz Día, Ma!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+    <style>
+        /* Animación de fondo */
+        body {
+            background: linear-gradient(-45deg, #ff9a9e, #fecfef, #f6e5e9, #fad0c4);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Evitar scroll horizontal */
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Tipografías */
+        .mensaje-texto {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .polaroid-text {
+            font-family: 'Caveat', cursive; /* Para que parezca escrito a mano en la foto */
+        }
+
+        /* Transiciones suaves */
+        .fade-transition {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.98);
+        }
+        
+        .fade-in {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Estilo Polaroid */
+        .polaroid {
+            background: white;
+            padding: 10px 10px 30px 10px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transform: rotate(-2deg);
+            transition: all 0.5s ease;
+        }
+        
+        .polaroid:hover {
+            transform: rotate(0deg) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Contenedor de la imagen con efecto de carga (Fallback) */
+        .img-placeholder {
+            background-color: #f3f4f6; /* Gris claro */
+            position: relative;
+            overflow: hidden;
+        }
+
+        .img-placeholder::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            100% { left: 200%; }
+        }
+
+        /* Estilo del cupón */
+        .cupon {
+            background-color: #fff9fa;
+            background-image: radial-gradient(#ffd1dc 2px, transparent 2px);
+            background-size: 20px 20px;
+            border: 3px dashed #ff8fa3;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), inset 0 0 15px rgba(255, 143, 163, 0.2);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        .heart-icon {
+            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full flex items-center justify-center p-4">
+
+    <!-- Contenedor Principal de la Tarjeta -->
+    <div id="card-container" class="bg-white/80 backdrop-blur-md rounded-3xl p-6 sm:p-10 max-w-lg w-full mx-auto shadow-2xl border border-white/50 text-center fade-transition fade-in relative mt-4 mb-4">
+        
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 opacity-70"></div>
+
+        <!-- Área de la Foto Polaroid -->
+        <div id="polaroid-wrapper" class="flex justify-center mb-6">
+            <div class="polaroid w-56 sm:w-64 max-w-full">
+                <!-- Contenedor de la imagen con proporción cuadrada 1:1 -->
+                <div class="img-placeholder w-full aspect-square rounded-sm">
+                    <!-- Usamos onerror para ocultar la imagen si no existe o mientras estamos desarrollando -->
+                    <img id="imagen-slide" src="foto1.jpg" alt="Foto con mamá" class="w-full h-full object-cover opacity-0 transition-opacity duration-500 z-10 relative" onload="this.classList.remove('opacity-0')" onerror="this.style.opacity='0'">
+                </div>
+                <div class="text-center mt-3 polaroid-text text-xl text-gray-700 opacity-80" id="polaroid-caption">
+                    ❤️
+                </div>
+            </div>
+        </div>
+
+        <!-- Área del mensaje -->
+        <div class="min-h-[100px] flex items-center justify-center mb-6">
+            <h1 id="mensaje-display" class="mensaje-texto text-2xl sm:text-3xl text-gray-800 leading-relaxed font-medium">
+                <!-- El texto se inyecta por JS -->
+            </h1>
+        </div>
+
+        <!-- Área de botones -->
+        <div id="btn-container" class="mt-2">
+            <button id="btn-siguiente" class="bg-pink-400 hover:bg-pink-500 text-white font-medium py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-lg w-full sm:w-auto">
+                Siguiente ✨
+            </button>
+            <button id="btn-regalo" class="hidden bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white font-semibold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-lg w-full sm:w-auto">
+                🎁 Obtener regalo
+            </button>
+        </div>
+        
+        <!-- Indicador de progreso -->
+        <div id="dots-container" class="flex justify-center gap-2 mt-6 flex-wrap">
+            <!-- Se generan por JS -->
+        </div>
+    </div>
+
+    <!-- Modal del Regalo -->
+    <div id="modal-regalo" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-500 bg-gray-900/40 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl transform scale-95 transition-transform duration-500 relative" id="modal-content">
+            
+            <button id="btn-cerrar-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-bold transition-colors">&times;</button>
+            
+            <div class="text-center px-2 mt-4">
+                <p class="text-gray-700 text-base sm:text-lg mb-6 leading-relaxed">
+                    Como te vengo preguntando hace 1 mes que vas a querer, y nunca me dijiste nada, sabiendo que no soy bueno para sorprenderte... te regalo un cupón que vale por lo que quieras, sacale captura para usarlo.
+                </p>
+
+                <!-- El Cupón -->
+                <div class="cupon rounded-xl p-6 relative overflow-hidden my-4 transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                    <div class="absolute left-[-15px] top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white rounded-full border-r-3 border-pink-300"></div>
+                    <div class="absolute right-[-15px] top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white rounded-full border-l-3 border-pink-300"></div>
+                    
+                    <div class="text-pink-500 text-3xl mb-2">
+                        <span class="heart-icon">❤️</span>🎁<span class="heart-icon">❤️</span>
+                    </div>
+                    <h2 class="font-bold text-xl sm:text-2xl text-pink-700 tracking-wide uppercase mt-2">
+                        Vale por tu regalo del día de la madre
+                    </h2>
+                    <p class="text-pink-500/70 text-sm mt-3 uppercase tracking-widest font-semibold">Válido por 1 mimo infinito</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array de diapositivas combinando texto y nombre del archivo
+        const slides = [
+            { texto: "Feliz dia a la que siempre me cumple los caprichos", img: "foto1.jpg" },
+            { texto: "A la que me apoya cuando estoy mal", img: "foto2.jpg" },
+            { texto: "La mejor docente de todas (¡y casi jubilada!)", img: "foto3.jpg" },
+            { texto: "La que desde chico me ayudó a estudiar", img: "foto4.jpg" },
+            { texto: "La que cocina, limpia, y se ocupa de que la casa esté siempre linda", img: "foto5.jpg" },
+            { texto: "La que me reta cuando me mando alguna macana", img: "foto6.jpg" },
+            { texto: "La que siempre me aconseja cuando no sé que hacer", img: "foto7.jpg" },
+            { texto: "Y la que sin duda es la mejor mamá del mundo entero, ¡y pieza fundamental de esta hermosa familia!", img: "foto8.jpg" }
+        ];
+        
+        const mensajeFinal = "¡Feliz día mami! ¡Te amo con todo lo que soy!";
+
+        // Variables de estado
+        let currentIndex = 0;
+        
+        // Elementos del DOM
+        const displayMensaje = document.getElementById('mensaje-display');
+        const imagenSlide = document.getElementById('imagen-slide');
+        const polaroidWrapper = document.getElementById('polaroid-wrapper');
+        const btnSiguiente = document.getElementById('btn-siguiente');
+        const btnRegalo = document.getElementById('btn-regalo');
+        const cardContainer = document.getElementById('card-container');
+        const dotsContainer = document.getElementById('dots-container');
+        
+        // Elementos del Modal
+        const modal = document.getElementById('modal-regalo');
+        const modalContent = document.getElementById('modal-content');
+        const btnCerrarModal = document.getElementById('btn-cerrar-modal');
+
+        // Inicializar puntitos
+        function initDots() {
+            for(let i = 0; i <= slides.length; i++) {
+                const dot = document.createElement('div');
+                dot.className = `w-2 h-2 rounded-full transition-colors duration-300 ${i === 0 ? 'bg-pink-500' : 'bg-pink-200'}`;
+                dot.id = `dot-${i}`;
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateDots(index) {
+            for(let i = 0; i <= slides.length; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                if (i === index) {
+                    dot.classList.remove('bg-pink-200');
+                    dot.classList.add('bg-pink-500', 'scale-125');
+                } else {
+                    dot.classList.remove('bg-pink-500', 'scale-125');
+                    dot.classList.add('bg-pink-200');
+                }
+            }
+        }
+
+        // Cargar datos en la vista
+        function renderSlide() {
+            if (currentIndex < slides.length) {
+                displayMensaje.textContent = slides[currentIndex].texto;
+                
+                // Ocultamos la imagen temporalmente para que haga el efecto fade-in al cargar la nueva
+                imagenSlide.classList.add('opacity-0');
+                
+                // Cambiamos el source (esto dispara el evento onload que le saca el opacity-0)
+                // Usamos un pequeño delay para asegurar que el navegador registre el cambio
+                setTimeout(() => {
+                    imagenSlide.src = slides[currentIndex].img;
+                }, 50);
+
+                polaroidWrapper.style.display = 'flex';
+                
+            } else if (currentIndex === slides.length) {
+                // Pantalla final
+                displayMensaje.innerHTML = `<span class="text-4xl text-pink-600 font-bold">${mensajeFinal}</span>`;
+                polaroidWrapper.style.display = 'none'; // Ocultamos la polaroid en el saludo final
+                btnSiguiente.classList.add('hidden');
+                btnRegalo.classList.remove('hidden');
+            }
+        }
+
+        // Transición
+        function cambiarSlide() {
+            // Animación de salida
+            cardContainer.classList.remove('fade-in');
+            cardContainer.classList.add('fade-out');
+
+            setTimeout(() => {
+                currentIndex++;
+                updateDots(currentIndex);
+                renderSlide();
+
+                // Animación de entrada
+                cardContainer.classList.remove('fade-out');
+                cardContainer.classList.add('fade-in');
+            }, 500); 
+        }
+
+        // Eventos
+        btnSiguiente.addEventListener('click', cambiarSlide);
+
+        btnRegalo.addEventListener('click', () => {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        });
+
+        btnCerrarModal.addEventListener('click', () => {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+        });
+
+        // Inicio
+        window.onload = () => {
+            renderSlide();
+            initDots();
+        };
+
+    </script>
+</body>
+</html>
